@@ -7,6 +7,7 @@ local functions = {
     showhealth = true,
     showname = true,
     usedisplayname = false,
+    excludedteams = {},
     
     usehostilecolor = true,
     hostilecolor = Color3.fromRGB(255, 60, 60),
@@ -134,9 +135,19 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             
             if config.usehostilecolor then
                 local hasHostileAttr = obj:GetAttribute("InCombat") or obj:GetAttribute("Hostile") or obj:GetAttribute(config.hostileattribute)
-                local isTeammate = p and p.Team == game:GetService("Players").LocalPlayer.Team and p.Team ~= nil
+                local isTeammate = p and p.Team == LocalPlayer.Team and p.Team ~= nil
                 
-                if hasHostileAttr and not isTeammate then
+                local isExcluded = false
+                if p and p.Team then
+                    for _, exTeam in ipairs(config.excludedteams or {}) do
+                        if p.Team.Name == exTeam then
+                            isExcluded = true
+                            break
+                        end
+                    end
+                end
+                
+                if (hasHostileAttr and not isTeammate) or (p and not isTeammate and not isExcluded) then
                     is_threat = true
                     current_color = config.hostilecolor
                 elseif isnpc then
