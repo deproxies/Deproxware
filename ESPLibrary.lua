@@ -13,6 +13,10 @@ local functions = {
     showname = true,
     usedisplayname = false,
     
+    usehostilecolor = true,
+    hostilecolor = Color3.fromRGB(255, 0, 0),
+    hostileattribute = "Hostile",
+    
     textTopColor = Color3.fromRGB(255, 255, 255),
     textBottomColor = Color3.fromRGB(255, 255, 255),
     
@@ -132,7 +136,10 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             local w = h / 1.5
             
             local current_color = config.boxcolor
-            if isnpc then
+            
+            if config.usehostilecolor and obj:GetAttribute(config.hostileattribute) then
+                current_color = config.hostilecolor
+            elseif isnpc then
                 current_color = config.npccolor
             else
                 local p = custom_player or game:GetService("Players"):GetPlayerFromCharacter(obj)
@@ -337,5 +344,7 @@ return functions
    functionlib.showname = true/false        -- show player names
    functionlib.useteamcolor = true/false    -- use team color
    functionlib.boxcolor = Color3.fromRGB(255, 255, 255)
+
+  THESE DOCS HAVE NOT BEEN UPDATED its open source you can figure it out lmao
 ================================================================================
 ]]
