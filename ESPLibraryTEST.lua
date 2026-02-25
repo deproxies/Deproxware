@@ -9,7 +9,7 @@ local functions = {
     usedisplayname = false,
     
     usehostilecolor = true,
-    hostilecolor = Color3.fromRGB(255, 0, 0),
+    hostilecolor = Color3.fromRGB(255, 60, 60),
     hostileattribute = "Hostile",
     
     textTopColor = Color3.fromRGB(255, 255, 255),
@@ -84,12 +84,10 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
     drawings.text_top.Size = 16
     drawings.text_top.Center = true
     drawings.text_top.Outline = true
-    drawings.text_top.OutlineColor = Color3.new(0, 0, 0)
     
     drawings.text_bottom.Size = 16
     drawings.text_bottom.Center = true
     drawings.text_bottom.Outline = true
-    drawings.text_bottom.OutlineColor = Color3.new(0, 0, 0)
     
     for i = 1, #skeleton_parts do
         local line = Drawing.new("Line")
@@ -131,14 +129,27 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             local w = h / 1.5
             
             local current_color = config.boxcolor
+            local is_threat = false
+            local p = not isnpc and (custom_player or game:GetService("Players"):GetPlayerFromCharacter(obj))
             
-            if config.usehostilecolor and obj:GetAttribute(config.hostileattribute) then
-                current_color = config.hostilecolor
-            elseif isnpc then
-                current_color = config.npccolor
+            if config.usehostilecolor then
+                local hasHostileAttr = obj:GetAttribute("InCombat") or obj:GetAttribute("Hostile") or obj:GetAttribute(config.hostileattribute)
+                local isTeammate = p and p.Team == game:GetService("Players").LocalPlayer.Team and p.Team ~= nil
+                
+                if hasHostileAttr and not isTeammate then
+                    is_threat = true
+                    current_color = config.hostilecolor
+                elseif isnpc then
+                    current_color = config.npccolor
+                elseif p then
+                    current_color = (config.useteamcolor and p.TeamColor) and p.TeamColor.Color or config.boxcolor
+                end
             else
-                local p = custom_player or game:GetService("Players"):GetPlayerFromCharacter(obj)
-                current_color = (config.useteamcolor and p and p.TeamColor) and p.TeamColor.Color or config.boxcolor
+                if isnpc then
+                    current_color = config.npccolor
+                elseif p then
+                    current_color = (config.useteamcolor and p.TeamColor) and p.TeamColor.Color or config.boxcolor
+                end
             end
 
             drawings.box.Size = Vector2.new(w, h)
@@ -152,7 +163,12 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             local show_d = isnpc and config.npcshowdistance or config.showdistance
 
             if show_n then
-                local name = isnpc and obj.Name or (config.usedisplayname and custom_player.DisplayName or custom_player.Name)
+                local name = isnpc and obj.Name or (config.usedisplayname and p and p.DisplayName or p and p.Name or obj.Name)
+                
+                if is_threat then
+                    name = "[!] " .. name
+                end
+                
                 if (isnpc and config.npcnamePosition or config.namePosition) == "Top" then t_label = name else b_label = name end
             end
 
@@ -177,11 +193,13 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             drawings.text_top.Text = t_label
             drawings.text_top.Position = Vector2.new(top_pos.X, top_pos.Y - 18)
             drawings.text_top.Color = config.textTopColor
+            drawings.text_top.OutlineColor = Color3.new(0, 0, 0)
             drawings.text_top.Visible = t_label ~= ""
             
             drawings.text_bottom.Text = b_label
             drawings.text_bottom.Position = Vector2.new(top_pos.X, bottom_pos.Y + 2)
             drawings.text_bottom.Color = config.textBottomColor
+            drawings.text_bottom.OutlineColor = Color3.new(0, 0, 0)
             drawings.text_bottom.Visible = b_label ~= ""
 
             local show_skel = isnpc and config.npcshowskeleton or config.showskeleton
