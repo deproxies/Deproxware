@@ -2,7 +2,7 @@
 
 ![Deproxware Banner](https://i.imgur.com/HnULDUT.png)
 
-> **"Built to keep you looking legit while still hitting everything."**
+> **"Built to keep you looking legit while still being that nigga."**
 ---
 
 ## 📸 Previews
@@ -14,18 +14,18 @@
 
 ---
 
-## ✨ Features
+##  Features
 
-### 🎯 Advanced Aimbot
+###  Advanced Aimbot
 * **Input Methods:** Choose between holding a designated keybind or using an automatic toggle.
-* **Visibilit Check:** Utilizes optimized raycasting against core body parts to ensure you only target visible enemies, keeping your gameplay looking natural.
+* **Visibility Check:** Utilizes optimized raycasting against core body parts to ensure you only target visible enemies, keeping your gameplay looking natural.
 * **Smoothing:** Adjustable smoothing options to mimic natural mouse movement, preventing snappy, robotic tracking.
-* **Target Prioritization:** Automatically ignores teammates, protected players, and users with active forcefields. Features a Target Switch Delay to prevent the aimbot from jittering between clustered players.
+* **Target Prioritization:** Automatically ignores teammates, protected players, and users with active forcefields. Features Target Switch Delay to prevent the aimbot from jittering between clustered players.
 * **FOV:** Visual FOV ring (with optional RGB effects) dictates the active targeting area. 
 * **Aim Method Support:** Supports both Camera manipulation and raw Mouse movement (`mousemoverel`).
 
-### 👁️ Dual-Mode ESP Library
-Deproxware offers two distinct ESP rendering methods, allowing you to prioritize either aesthetic fidelity or raw performance.
+###  2-Mode ESP Library
+Deproxware has two distinct ESP rendering methods, allowing you to prioritize either aesthetics or raw performance.
 
 * **Drawing ESP (2D - Performance Optimized)**
     * Ideal for a competitive, high-FPS environment.
@@ -36,20 +36,20 @@ Deproxware offers two distinct ESP rendering methods, allowing you to prioritize
     * Fully customizable fill and outline transparencies.
 * **Nametags:** Toggle between Usernames and Display Names with customizable offsets, sizing, and stroke colors.
 
-## 🛡️ The Protect List
+##  Protection List
 Located in the **Misc Tab**, the Protect List allows you to safeguard your friends or specific players. 
 * **How to use:** Input a Username or UserID.
 * **Effect:** The aimbot will completely ignore these players, and they will render in a unique, high-priority color on your ESP visuals.
 
 ---
 
-## 🛠️ Execution & Stability
-* **Auto-Persistence:** Features a "Re-execute on Teleport" system. The script will automatically restart itself when you hop servers or teleport between game instances.
-* **Configuration:** Integrated with the Obsidian Save Manager. All settings—including your custom Item ESP paths and Protect Lists—are saved locally and can be loaded instantly.
+##  Execution & Stability
+* **Auto-Execute:** Features a "Re-execute on Teleport" system. The script will automatically restart itself when you hop servers or teleport between game instances.
+* **Configuration:** All settings are saved locally and can be loaded instantly.
 
 ---
 
-## 📖 Further  Documentation
+##  Further  Documentation
 
 ### Aimbot Adjustments
 * **Target Part:** Select `Head` for aggressive tracking, or `Torso` if you are aiming for a highly legitimate playstyle.
@@ -61,13 +61,13 @@ To keep visual information clear during combat, the ESP prioritizes colors in th
 1.  **Protected Users** (Custom Whitelist)
 2.  **Teammates** (If Team Color is enabled)
 3.  **Visible Enemies** (Enemies you have a clear line of sight on)
-4.  **Obscured Enemies** (Enemies behind cover)
+4.  **Non-visible Enemies** (Enemies behind cover)
 
 ---
 
-## 🤝 Credits & Support
+## Credits & Support
 
-**Lead Developer:** deproxies (*deproxies* on Scriptblox, RScripts, Discord etc)
+**Developer:** deproxies (*deproxies* on Scriptblox, RScripts, Discord etc)
 * **UI Framework:** Obsidian Library
 * **Testing & Suggestions:** 7stk
 
