@@ -35,9 +35,34 @@ local functions = {
     targetitems = {},
 }
 
-local active_conns = {}
-local drawing_cache = {}
-local player_char_conns = {}
+if getgenv().__DeproxESP_active_conns then
+    for _, conn in pairs(getgenv().__DeproxESP_active_conns) do
+        if conn and conn.Disconnect then pcall(function() conn:Disconnect() end) end
+    end
+end
+if getgenv().__DeproxESP_char_conns then
+    for _, conn in pairs(getgenv().__DeproxESP_char_conns) do
+        if conn and conn.Disconnect then pcall(function() conn:Disconnect() end) end
+    end
+end
+if getgenv().__DeproxESP_drawing_cache then
+    local function destroy_cache(t)
+        for k, v in pairs(t) do
+            if type(v) == "table" then destroy_cache(v)
+            elseif v.Remove then pcall(function() v:Remove() end) end
+            t[k] = nil
+        end
+    end
+    destroy_cache(getgenv().__DeproxESP_drawing_cache)
+end
+
+getgenv().__DeproxESP_active_conns = {}
+getgenv().__DeproxESP_char_conns = {}
+getgenv().__DeproxESP_drawing_cache = {}
+
+local active_conns = getgenv().__DeproxESP_active_conns
+local drawing_cache = getgenv().__DeproxESP_drawing_cache
+local player_char_conns = getgenv().__DeproxESP_char_conns
 
 local skeleton_parts = {
     {"Head", "UpperTorso"}, {"UpperTorso", "LowerTorso"}, {"UpperTorso", "LeftUpperArm"},
@@ -67,14 +92,18 @@ function functions:unload()
     for _, conn in pairs(active_conns) do
         if conn and conn.Disconnect then pcall(function() conn:Disconnect() end) end
     end
-    active_conns = {}
+    getgenv().__DeproxESP_active_conns = {}
+    active_conns = getgenv().__DeproxESP_active_conns
 
     for _, conn in pairs(player_char_conns) do
         if conn and conn.Disconnect then pcall(function() conn:Disconnect() end) end
     end
-    player_char_conns = {}
+    getgenv().__DeproxESP_char_conns = {}
+    player_char_conns = getgenv().__DeproxESP_char_conns
 
     destroy_drawings(drawing_cache)
+    getgenv().__DeproxESP_drawing_cache = {}
+    drawing_cache = getgenv().__DeproxESP_drawing_cache
 end
 
 local function draw_esp(obj, hum, isnpc, config, custom_player)
