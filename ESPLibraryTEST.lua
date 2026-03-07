@@ -60,6 +60,10 @@ local function destroy_drawings(table_to_clean)
 end
 
 function functions:unload()
+    self.enabled = false
+    self.npcenabled = false
+    self.itemsenabled = false
+
     for _, conn in pairs(active_conns) do
         if conn and conn.Disconnect then pcall(function() conn:Disconnect() end) end
     end
@@ -275,23 +279,28 @@ end
 function functions:esp(p, char)
     if char then
         local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then draw_esp(char, hum, false, self, p) end
+        if hum and self.enabled then draw_esp(char, hum, false, self, p) end
         return
     end
 
-    local charConn = p.CharacterAdded:Connect(function(c)
-        if not self.enabled then return end
-        local hum = c:WaitForChild("Humanoid", 10)
-        if hum then draw_esp(c, hum, false, self, p) end
-    end)
     if player_char_conns[p] then
         pcall(function() player_char_conns[p]:Disconnect() end)
+        player_char_conns[p] = nil
     end
+
+    local config = self
+    local charConn = p.CharacterAdded:Connect(function(c)
+        if not config.enabled then return end
+        local hum = c:WaitForChild("Humanoid", 10)
+        if hum and config.enabled then
+            draw_esp(c, hum, false, config, p)
+        end
+    end)
     player_char_conns[p] = charConn
 
     if p.Character then
         local hum = p.Character:FindFirstChild("Humanoid")
-        if hum then draw_esp(p.Character, hum, false, self, p) end
+        if hum and self.enabled then draw_esp(p.Character, hum, false, self, p) end
     end
 end
 
