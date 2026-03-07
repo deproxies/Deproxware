@@ -280,6 +280,7 @@ function functions:esp(p, char)
     end
 
     local charConn = p.CharacterAdded:Connect(function(c)
+        if not self.enabled then return end
         local hum = c:WaitForChild("Humanoid", 10)
         if hum then draw_esp(c, hum, false, self, p) end
     end)
