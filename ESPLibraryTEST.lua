@@ -7,10 +7,9 @@ local functions = {
     showhealth = true,
     showname = true,
     usedisplayname = false,
-    excludedteams = {},
     
     usehostilecolor = true,
-    hostilecolor = Color3.fromRGB(255, 60, 60),
+    hostilecolor = Color3.fromRGB(255, 0, 0),
     hostileattribute = "Hostile",
     
     textTopColor = Color3.fromRGB(255, 255, 255),
@@ -38,6 +37,7 @@ local functions = {
 
 local active_conns = {}
 local drawing_cache = {}
+local player_char_conns = {}
 
 local skeleton_parts = {
     {"Head", "UpperTorso"}, {"UpperTorso", "LowerTorso"}, {"UpperTorso", "LeftUpperArm"},
@@ -61,9 +61,15 @@ end
 
 function functions:unload()
     for _, conn in pairs(active_conns) do
-        if conn.Disconnect then pcall(function() conn:Disconnect() end) end
+        if conn and conn.Disconnect then pcall(function() conn:Disconnect() end) end
     end
     active_conns = {}
+
+    for _, conn in pairs(player_char_conns) do
+        if conn and conn.Disconnect then pcall(function() conn:Disconnect() end) end
+    end
+    player_char_conns = {}
+
     destroy_drawings(drawing_cache)
 end
 
@@ -82,13 +88,18 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
         skeleton = {}
     }
     
+    drawings.box.Thickness = 1
+    drawings.box.Filled = false
+
     drawings.text_top.Size = 16
     drawings.text_top.Center = true
     drawings.text_top.Outline = true
+    drawings.text_top.OutlineColor = Color3.new(0, 0, 0)
     
     drawings.text_bottom.Size = 16
     drawings.text_bottom.Center = true
     drawings.text_bottom.Outline = true
+    drawings.text_bottom.OutlineColor = Color3.new(0, 0, 0)
     
     for i = 1, #skeleton_parts do
         local line = Drawing.new("Line")
@@ -130,37 +141,14 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             local w = h / 1.5
             
             local current_color = config.boxcolor
-            local is_threat = false
-            local p = not isnpc and (custom_player or game:GetService("Players"):GetPlayerFromCharacter(obj))
             
-            if config.usehostilecolor then
-                local hasHostileAttr = obj:GetAttribute("InCombat") or obj:GetAttribute("Hostile") or obj:GetAttribute(config.hostileattribute)
-                local isTeammate = p and p.Team == LocalPlayer.Team and p.Team ~= nil
-                
-                local isExcluded = false
-                if p and p.Team then
-                    for _, exTeam in ipairs(config.excludedteams or {}) do
-                        if p.Team.Name == exTeam then
-                            isExcluded = true
-                            break
-                        end
-                    end
-                end
-                
-                if (hasHostileAttr and not isTeammate) or (p and not isTeammate and not isExcluded) then
-                    is_threat = true
-                    current_color = config.hostilecolor
-                elseif isnpc then
-                    current_color = config.npccolor
-                elseif p then
-                    current_color = (config.useteamcolor and p.TeamColor) and p.TeamColor.Color or config.boxcolor
-                end
+            if config.usehostilecolor and obj:GetAttribute(config.hostileattribute) then
+                current_color = config.hostilecolor
+            elseif isnpc then
+                current_color = config.npccolor
             else
-                if isnpc then
-                    current_color = config.npccolor
-                elseif p then
-                    current_color = (config.useteamcolor and p.TeamColor) and p.TeamColor.Color or config.boxcolor
-                end
+                local p = custom_player or game:GetService("Players"):GetPlayerFromCharacter(obj)
+                current_color = (config.useteamcolor and p and p.TeamColor) and p.TeamColor.Color or config.boxcolor
             end
 
             drawings.box.Size = Vector2.new(w, h)
@@ -174,12 +162,7 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             local show_d = isnpc and config.npcshowdistance or config.showdistance
 
             if show_n then
-                local name = isnpc and obj.Name or (config.usedisplayname and p and p.DisplayName or p and p.Name or obj.Name)
-                
-                if is_threat then
-                    name = "[!] " .. name
-                end
-                
+                local name = isnpc and obj.Name or (config.usedisplayname and custom_player and custom_player.DisplayName or (custom_player and custom_player.Name or obj.Name))
                 if (isnpc and config.npcnamePosition or config.namePosition) == "Top" then t_label = name else b_label = name end
             end
 
@@ -204,13 +187,11 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
             drawings.text_top.Text = t_label
             drawings.text_top.Position = Vector2.new(top_pos.X, top_pos.Y - 18)
             drawings.text_top.Color = config.textTopColor
-            drawings.text_top.OutlineColor = Color3.new(0, 0, 0)
             drawings.text_top.Visible = t_label ~= ""
             
             drawings.text_bottom.Text = b_label
             drawings.text_bottom.Position = Vector2.new(top_pos.X, bottom_pos.Y + 2)
             drawings.text_bottom.Color = config.textBottomColor
-            drawings.text_bottom.OutlineColor = Color3.new(0, 0, 0)
             drawings.text_bottom.Visible = b_label ~= ""
 
             local show_skel = isnpc and config.npcshowskeleton or config.showskeleton
@@ -298,10 +279,15 @@ function functions:esp(p, char)
         return
     end
 
-    p.CharacterAdded:Connect(function(c)
+    local charConn = p.CharacterAdded:Connect(function(c)
         local hum = c:WaitForChild("Humanoid", 10)
         if hum then draw_esp(c, hum, false, self, p) end
     end)
+    if player_char_conns[p] then
+        pcall(function() player_char_conns[p]:Disconnect() end)
+    end
+    player_char_conns[p] = charConn
+
     if p.Character then
         local hum = p.Character:FindFirstChild("Humanoid")
         if hum then draw_esp(p.Character, hum, false, self, p) end
@@ -323,7 +309,8 @@ function functions:track_items(folder, filter)
     end
 
     for _, v in pairs(folder:GetChildren()) do process(v) end
-    folder.ChildAdded:Connect(process)
+    local trackConn = folder.ChildAdded:Connect(process)
+    table.insert(active_conns, trackConn)
 end
 
 return functions
