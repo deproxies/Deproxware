@@ -70,5 +70,4 @@ To keep visual information clear during combat, the ESP prioritizes colors in th
 **Developer:** deproxies (*deproxies* on Scriptblox, RScripts, Discord etc)
 * **UI Framework:** Obsidian Library
 * **Testing & Suggestions:** 7stk
-
-💬 **Need help or want to report a bug?** Join the community Discord: [https://discord.gg/D8NpxgY99c](https://discord.gg/D8NpxgY99c)
+**Need help or want to report a bug?** Join the community Discord: [https://discord.gg/D8NpxgY99c](https://discord.gg/D8NpxgY99c)
