@@ -7,6 +7,7 @@ local functions = {
     showhealth = true,
     showname = true,
     usedisplayname = false,
+    maxdistance = 1000,
     
     usehostilecolor = true,
     hostilecolor = Color3.fromRGB(255, 0, 0),
@@ -169,6 +170,15 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
         if on_screen then
             local bottom_pos = cam:WorldToViewportPoint(hrp.Position + Vector3.new(0, -3.5, 0))
             local dist = (cam.CFrame.Position - hrp.Position).Magnitude
+
+            if config.maxdistance and dist > config.maxdistance then
+                drawings.box.Visible = false
+                drawings.text_top.Visible = false
+                drawings.text_bottom.Visible = false
+                drawings.head_circle.Visible = false
+                for _, v in ipairs(drawings.skeleton) do v.Visible = false end
+                return
+            end
             
             local h = math.abs(top_pos.Y - bottom_pos.Y)
             local w = h / 1.5
@@ -259,7 +269,7 @@ local function draw_esp(obj, hum, isnpc, config, custom_player)
                 drawings.head_circle.Visible = false
                 for _, v in ipairs(drawings.skeleton) do v.Visible = false end
             end
-        else
+       else
             drawings.box.Visible = false
             drawings.text_top.Visible = false
             drawings.text_bottom.Visible = false
